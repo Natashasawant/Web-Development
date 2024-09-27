@@ -1,0 +1,69 @@
+// Get references to HTML elements
+const addExpenseForm = document.getElementById('add-expense-form');
+const expensesTable = document.getElementById('expenses-table');
+const expensesList = document.getElementById('expenses-list');
+
+// Initialize expenses array and load from local storage
+let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+// Function to add new expense
+function addExpense(description, amount) {
+    const expense = { description, amount };
+    expenses.push(expense);
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+    displayExpenses();
+}
+
+// Function to display expenses in table
+function displayExpenses() {
+    expensesList.innerHTML = '';
+    expenses.forEach((expense, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${expense.description}</td>
+            <td>${expense.amount}</td>
+            <td>
+                <button class="edit-btn" data-index="${index}">Edit</button>
+                <button class="delete-btn" data-index="${index}">Delete</button>
+            </td>
+        `;
+        expensesList.appendChild(row);
+    });
+}
+
+// Function to edit expense
+function editExpense(index, description, amount) {
+    expenses[index].description = description;
+    expenses[index].amount = amount;
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+    displayExpenses();
+}
+
+// Function to delete expense
+function deleteExpense(index) {
+    expenses.splice(index, 1);
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+    displayExpenses();
+}
+
+// Event listeners
+addExpenseForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const description = document.getElementById('description').value;
+    const amount = document.getElementById('amount').value;
+    addExpense(description, amount);
+    document.getElementById('description').value = '';
+    document.getElementById('amount').value = '';
+});
+
+expensesTable.addEventListener('click', (e) => {
+    if (e.target.classList.contains('edit-btn')) {
+        const index = e.target.dataset.index;
+        const description = prompt('Enter new description:');
+        const amount = prompt('Enter new amount:');
+        editExpense(index, description, amount);
+    } else if (e.target.classList.contains('delete-btn')) {
+        const index = e.target.dataset.index;
+        deleteExpense(index);
+    }
+});
